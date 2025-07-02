@@ -75,6 +75,29 @@ services
 
 ---
 
+## 🔐 Native AOT Support
+
+Validify is fully compatible with Native AOT for optimized, self-contained executables:
+
+```xml
+<IsAotCompatible>true</IsAotCompatible>
+```
+
+---
+
+## 🧩 Register validation response types for source generation
+
+To support HttpValidationProblemDetails responses in AOT scenarios, include it in your JsonSerializerContext:
+
+```csharp
+[JsonSerializable(typeof(HttpValidationProblemDetails))]
+public partial class AppJsonSerializerContext : JsonSerializerContext;
+```
+
+This ensures that validation error responses can be properly serialized when using source-generated System.Text.Json.
+
+---
+
 ## 📂 Project Structure
 
 - `ValidifyRegistration.cs`: Registers all necessary services
