@@ -1,6 +1,6 @@
 # Kopticx.Validify
 
-[![NuGet](https://img.shields.io/nuget/v/Validify?style=flat-square)](https://www.nuget.org/packages/Kopticx.Validify)
+[![NuGet](https://img.shields.io/nuget/v/Kopticx.Validify?style=flat-square)](https://www.nuget.org/packages/Kopticx.Validify)
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 **Validify** is a lightweight validation filter for ASP.NET Core Minimal APIs that uses [FluentValidation](https://fluentvalidation.net/) under the hood. It allows you to inject model validation seamlessly into your API pipeline using a simple and expressive syntax.
