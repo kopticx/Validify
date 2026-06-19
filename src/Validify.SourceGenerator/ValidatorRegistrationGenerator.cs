@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Validify.SourceGenerator;
@@ -9,14 +11,58 @@ namespace Validify.SourceGenerator;
 [Generator(LanguageNames.CSharp)]
 public sealed class ValidatorRegistrationGenerator : IIncrementalGenerator
 {
+    private static readonly SymbolDisplayFormat FullyQualified = SymbolDisplayFormat.FullyQualifiedFormat;
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx => { });
+        var local = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (node, _) => node is ClassDeclarationSyntax { BaseList: not null },
+                transform: static (ctx, _) => GetLocalValidators(ctx))
+            .Where(static a => a.Count > 0)
+            .Collect();
 
-        var registrations = context.CompilationProvider
-            .Select(static (_, _) => EquatableArray<ValidatorRegistration>.Empty);
+        context.RegisterSourceOutput(local, static (spc, locals) => Emit(spc, Flatten(locals)));
+    }
 
-        context.RegisterSourceOutput(registrations, static (spc, regs) => Emit(spc, regs));
+    private static EquatableArray<ValidatorRegistration> GetLocalValidators(GeneratorSyntaxContext ctx)
+    {
+        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol symbol)
+            return EquatableArray<ValidatorRegistration>.Empty;
+
+        if (!IsConcreteCandidate(symbol))
+            return EquatableArray<ValidatorRegistration>.Empty;
+
+        var builder = ImmutableArray.CreateBuilder<ValidatorRegistration>();
+        foreach (var serviceType in GetValidatorServiceTypes(symbol))
+            builder.Add(new ValidatorRegistration(serviceType, symbol.ToDisplayString(FullyQualified)));
+
+        return new EquatableArray<ValidatorRegistration>(builder.ToImmutable());
+    }
+
+    /// <summary>True when the type can be instantiated and registered as a validator.</summary>
+    private static bool IsConcreteCandidate(INamedTypeSymbol symbol) =>
+        symbol is { TypeKind: TypeKind.Class, IsAbstract: false, IsStatic: false, IsGenericType: false };
+
+    /// <summary>Fully-qualified <c>IValidator&lt;T&gt;</c> strings this type implements.</summary>
+    private static IEnumerable<string> GetValidatorServiceTypes(INamedTypeSymbol symbol)
+    {
+        foreach (var iface in symbol.AllInterfaces)
+        {
+            if (iface is { MetadataName: "IValidator`1", TypeArguments.Length: 1 } &&
+                iface.ContainingNamespace.ToDisplayString() == "FluentValidation")
+            {
+                yield return iface.ToDisplayString(FullyQualified);
+            }
+        }
+    }
+
+    private static EquatableArray<ValidatorRegistration> Flatten(ImmutableArray<EquatableArray<ValidatorRegistration>> groups)
+    {
+        var builder = ImmutableArray.CreateBuilder<ValidatorRegistration>();
+        foreach (var group in groups)
+            builder.AddRange(group.AsImmutableArray());
+        return new EquatableArray<ValidatorRegistration>(builder.ToImmutable());
     }
 
     private static void Emit(SourceProductionContext context, EquatableArray<ValidatorRegistration> registrations)
