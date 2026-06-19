@@ -1,0 +1,128 @@
+namespace Validify.SourceGenerator.Tests;
+
+public class GeneratorTests
+{
+  [Test]
+  public Task EmptyCompilation_GeneratesEmptyRegistrationMethod()
+  {
+    const string source = "namespace Sample { public class Nothing { } }";
+
+    var driver = TestHelper.Run(source);
+
+    return Verify(driver);
+  }
+
+  [Test]
+  public Task LocalValidator_IsRegistered()
+  {
+    const string source = """
+                          using FluentValidation;
+
+                          namespace Sample.Models { public class User { public string Name { get; set; } = ""; } }
+
+                          namespace Sample.Validators
+                          {
+                              using Sample.Models;
+                              public sealed class UserValidator : AbstractValidator<User>
+                              {
+                                  public UserValidator() => RuleFor(x => x.Name).NotEmpty();
+                              }
+                          }
+                          """;
+
+    var driver = TestHelper.Run(source);
+
+    return Verify(driver);
+  }
+
+  [Test]
+  public Task AbstractAndOpenGenericValidators_AreSkipped()
+  {
+    const string source = """
+                          using FluentValidation;
+
+                          namespace Sample.Models { public class Order { public int Id { get; set; } } }
+
+                          namespace Sample.Validators
+                          {
+                              using Sample.Models;
+
+                              // abstract base — must NOT be registered
+                              public abstract class BaseValidator<T> : AbstractValidator<T> { }
+
+                              // open generic — must NOT be registered
+                              public sealed class GenericValidator<T> : AbstractValidator<T> { }
+
+                              // concrete — MUST be registered
+                              public sealed class OrderValidator : BaseValidator<Order>
+                              {
+                                  public OrderValidator() => RuleFor(x => x.Id).GreaterThan(0);
+                              }
+                          }
+                          """;
+
+    var driver = TestHelper.Run(source);
+
+    return Verify(driver);
+  }
+
+  [Test]
+  public Task ValidatorImplementingTwoModels_RegistersBoth()
+  {
+    const string source = """
+                          using FluentValidation;
+
+                          namespace Sample.Models
+                          {
+                              public class A { public string V { get; set; } = ""; }
+                              public class B { public string V { get; set; } = ""; }
+                          }
+
+                          namespace Sample.Validators
+                          {
+                              using Sample.Models;
+                              public sealed class DualValidator : AbstractValidator<A>, IValidator<B>
+                              {
+                                  public DualValidator() => RuleFor(x => x.V).NotEmpty();
+
+                                  FluentValidation.Results.ValidationResult IValidator<B>.Validate(B instance) => new();
+                                  System.Threading.Tasks.Task<FluentValidation.Results.ValidationResult> IValidator<B>.ValidateAsync(
+                                      B instance, System.Threading.CancellationToken cancellation) => System.Threading.Tasks.Task.FromResult(new FluentValidation.Results.ValidationResult());
+                              }
+                          }
+                          """;
+
+    var driver = TestHelper.Run(source);
+
+    return Verify(driver);
+  }
+
+  [Test]
+  public Task ValidatorInReferencedAssembly_IsRegistered()
+  {
+    // A separate "Domain" assembly that defines a public validator.
+    const string domainSource = """
+                                using FluentValidation;
+
+                                namespace Domain.Models { public class Product { public string Sku { get; set; } = ""; } }
+
+                                namespace Domain.Validators
+                                {
+                                    using Domain.Models;
+                                    public sealed class ProductValidator : AbstractValidator<Product>
+                                    {
+                                        public ProductValidator() => RuleFor(x => x.Sku).NotEmpty();
+                                    }
+                                }
+                                """;
+
+    var domainReference = TestHelper.CompileToReference("Domain", domainSource);
+
+    // The startup assembly has no validators of its own.
+    const string startupSource = "namespace Startup { public class Program { } }";
+
+    var driver = TestHelper.Run(startupSource, domainReference);
+
+    return Verify(driver);
+  }
+}

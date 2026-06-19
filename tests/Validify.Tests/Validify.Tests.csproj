@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPackable>false</IsPackable>
+		<OutputType>Exe</OutputType>
+		<!-- TUnit runs on Microsoft.Testing.Platform; opt into the MTP-based `dotnet test`. -->
+		<TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="TUnit"/>
+		<FrameworkReference Include="Microsoft.AspNetCore.App"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Validify\Validify.csproj"/>
+		<ProjectReference Include="..\..\src\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
+		                  OutputItemType="Analyzer"
+		                  ReferenceOutputAssembly="false"/>
+	</ItemGroup>
+
+</Project>

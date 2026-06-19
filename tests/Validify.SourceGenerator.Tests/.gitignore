@@ -1,0 +1,2 @@
+# Verify-generated snapshots awaiting review; never commit these.
+*.received.*

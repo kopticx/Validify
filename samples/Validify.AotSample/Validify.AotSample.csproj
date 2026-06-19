@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <PublishAot>true</PublishAot>
+        <IsPackable>false</IsPackable>
+        <!-- Fail the build on any trim/AOT warning. -->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Validify\Validify.csproj" />
+        <ProjectReference Include="..\Validify.AotSample.Domain\Validify.AotSample.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+</Project>
