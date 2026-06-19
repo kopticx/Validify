@@ -1,12 +1,8 @@
-// The Validify runtime assembly is aliased (see Validify.AotSample.csproj) to avoid a duplicate
-// `ValidifyGeneratedRegistration` clash with this project's own generated copy. The runtime's
-// AddValidify / WithValidation extensions are therefore reached through that alias's namespaces.
-extern alias validify_runtime;
 using System.Text.Json.Serialization;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using validify_runtime::Validify;
-using validify_runtime::Validify.Extensions;
+using Validify;
+using Validify.AotSample.Domain;
+using Validify.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -21,6 +17,12 @@ var app = builder.Build();
 app.MapPost("/people", (CreatePerson person) => Results.Ok(person))
    .WithValidation<CreatePerson>();
 
+// Company / CompanyValidator live in a SEPARATE assembly (Validify.AotSample.Domain). The single
+// AddValidifyValidators() call above must discover and register CompanyValidator from that
+// referenced assembly with no manual registration and no alias.
+app.MapPost("/companies", (Company company) => Results.Ok(company))
+   .WithValidation<Company>();
+
 app.Run();
 
 public sealed class CreatePerson
@@ -34,5 +36,6 @@ public sealed class CreatePersonValidator : AbstractValidator<CreatePerson>
 }
 
 [JsonSerializable(typeof(CreatePerson))]
+[JsonSerializable(typeof(Company))]
 [JsonSerializable(typeof(HttpValidationProblemDetails))]
 public partial class AppJsonContext : JsonSerializerContext;

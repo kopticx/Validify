@@ -11,16 +11,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!--
-            The Validify runtime assembly ships its own (empty) generated
-            `Microsoft.Extensions.DependencyInjection.ValidifyGeneratedRegistration` because the
-            generator deliberately emits an empty registration method even when a compilation has no
-            validators. This sample also generates its OWN populated `ValidifyGeneratedRegistration`
-            (it contains CreatePersonValidator). Two public types with the same fully-qualified name
-            in two assemblies make `AddValidifyValidators` ambiguous (CS0121). An extern alias hides
-            the runtime copy so only this assembly's generated registration is in the global namespace.
-        -->
-        <ProjectReference Include="..\..\src\Validify\Validify.csproj" Aliases="validify_runtime" />
+        <ProjectReference Include="..\..\src\Validify\Validify.csproj" />
+        <ProjectReference Include="..\Validify.AotSample.Domain\Validify.AotSample.Domain.csproj" />
         <ProjectReference Include="..\..\src\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />

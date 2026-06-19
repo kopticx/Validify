@@ -26,8 +26,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!--
+            Reference the generator for build-order only (so its DLL exists for the <None> pack
+            item below) but do NOT run it on Validify's own compilation (no OutputItemType="Analyzer").
+            Running it here would emit an empty `ValidifyGeneratedRegistration` into Validify.dll,
+            colliding (CS0121) with the populated copy every consumer generates for itself.
+        -->
         <ProjectReference Include="..\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
-                          OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
     </ItemGroup>
 

@@ -1,11 +1,4 @@
-// The Validify runtime assembly is aliased (see Validify.Tests.csproj) to avoid a
-// duplicate `ValidifyGeneratedRegistration` clash with this assembly's generated copy.
-// Reach the filter type through that alias's namespace.
-
-extern alias validify_runtime;
-using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Filters = validify_runtime::Validify.Filters;
 
 namespace Validify.Tests;
 
