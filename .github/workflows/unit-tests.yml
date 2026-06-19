@@ -1,0 +1,40 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - opened
+      - synchronize
+      - reopened
+ 
+jobs:
+  unit_tests:
+    name: unit_tests
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+ 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Expose GitHub Runtime Tokens
+        uses: actions/github-script@v8
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
+      - name: Restore dependencies
+        run: dotnet restore
+ 
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      
+      - name: Run unit tests and generate HTML report
+        run: dotnet test --no-build --configuration Release --verbosity normal -- --report-html
