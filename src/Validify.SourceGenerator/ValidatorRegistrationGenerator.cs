@@ -22,7 +22,71 @@ public sealed class ValidatorRegistrationGenerator : IIncrementalGenerator
             .Where(static a => a.Count > 0)
             .Collect();
 
-        context.RegisterSourceOutput(local, static (spc, locals) => Emit(spc, Flatten(locals)));
+        var referenced = context.CompilationProvider
+            .Select(static (compilation, _) => GetReferencedValidators(compilation));
+
+        var combined = local.Combine(referenced);
+
+        context.RegisterSourceOutput(combined, static (spc, pair) =>
+        {
+            var all = Flatten(pair.Left).AsImmutableArray().AddRange(pair.Right.AsImmutableArray());
+            Emit(spc, new EquatableArray<ValidatorRegistration>(all));
+        });
+    }
+
+    private static EquatableArray<ValidatorRegistration> GetReferencedValidators(Compilation compilation)
+    {
+        var builder = ImmutableArray.CreateBuilder<ValidatorRegistration>();
+
+        foreach (var reference in compilation.References)
+        {
+            if (compilation.GetAssemblyOrModuleSymbol(reference) is not IAssemblySymbol assembly)
+                continue;
+
+            if (!ReferencesFluentValidation(assembly))
+                continue;
+
+            foreach (var type in GetAllTypes(assembly.GlobalNamespace))
+            {
+                if (!IsConcreteCandidate(type) || type.DeclaredAccessibility != Accessibility.Public)
+                    continue;
+
+                foreach (var serviceType in GetValidatorServiceTypes(type))
+                    builder.Add(new ValidatorRegistration(serviceType, type.ToDisplayString(FullyQualified)));
+            }
+        }
+
+        return new EquatableArray<ValidatorRegistration>(builder.ToImmutable());
+    }
+
+    private static bool ReferencesFluentValidation(IAssemblySymbol assembly) =>
+        assembly.Modules.Any(module =>
+            module.ReferencedAssemblies.Any(id => id.Name == "FluentValidation"));
+
+    private static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol root)
+    {
+        var stack = new Stack<INamespaceOrTypeSymbol>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            var current = stack.Pop();
+
+            foreach (var member in current.GetMembers())
+            {
+                switch (member)
+                {
+                    case INamespaceSymbol ns:
+                        stack.Push(ns);
+                        break;
+                    case INamedTypeSymbol type:
+                        yield return type;
+                        foreach (var nested in type.GetTypeMembers())
+                            stack.Push(nested);
+                        break;
+                }
+            }
+        }
     }
 
     private static EquatableArray<ValidatorRegistration> GetLocalValidators(GeneratorSyntaxContext ctx)
