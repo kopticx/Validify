@@ -13,6 +13,7 @@
             It enables clean and automatic model validation before reaching the endpoint logic. The library supports dependency injection, custom validators, 
             and is fully compatible with Native AOT.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/kopticx/Validify</RepositoryUrl>
     </PropertyGroup>
 
@@ -35,6 +36,7 @@
               Pack="true"
               PackagePath="analyzers/dotnet/cs"
               Visible="false" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
