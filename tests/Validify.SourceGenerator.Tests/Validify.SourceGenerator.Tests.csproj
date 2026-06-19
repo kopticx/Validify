@@ -6,19 +6,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <OutputType>Exe</OutputType>
-        <!-- TUnit runs on Microsoft.Testing.Platform; opt into the MTP-based `dotnet test`. -->
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="TUnit" Version="1.56.0" />
-        <PackageReference Include="Verify.TUnit" Version="31.20.0" />
-        <PackageReference Include="Verify.SourceGenerators" Version="2.5.0" />
-        <!-- Verify.SourceGenerators 2.5.0 is compiled against Microsoft.CodeAnalysis 4.9.0,
-             so the test host must provide >= 4.9.0 (the generator itself still targets 4.8.0). -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
-        <PackageReference Include="FluentValidation" Version="12.1.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+        <PackageReference Include="TUnit" />
+        <PackageReference Include="Verify.TUnit" />
+        <PackageReference Include="Verify.SourceGenerators" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     </ItemGroup>
 
     <ItemGroup>

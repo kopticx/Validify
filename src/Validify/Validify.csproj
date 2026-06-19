@@ -17,8 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="12.1.1" />
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,12 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!--
-            Reference the generator for build-order only (so its DLL exists for the <None> pack
-            item below) but do NOT run it on Validify's own compilation (no OutputItemType="Analyzer").
-            Running it here would emit an empty `ValidifyGeneratedRegistration` into Validify.dll,
-            colliding (CS0121) with the populated copy every consumer generates for itself.
-        -->
         <ProjectReference Include="..\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
                           ReferenceOutputAssembly="false" />
     </ItemGroup>
