@@ -1,0 +1,33 @@
+version: 2
+
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      fluentvalidation:
+        patterns:
+          - "FluentValidation*"
+      testing:
+        patterns:
+          - "TUnit*"
+          - "Verify*"
+      roslyn:
+        patterns:
+          - "Microsoft.CodeAnalysis*"
+      microsoft:
+        patterns:
+          - "Microsoft.*"
+          - "System.*"
+        exclude-patterns:
+          - "Microsoft.CodeAnalysis*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
