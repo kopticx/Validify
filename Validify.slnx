@@ -1,8 +1,14 @@
 <Solution>
-  <Project Path="src/Validify/Validify.csproj" />
-  <Project Path="src/Validify.SourceGenerator/Validify.SourceGenerator.csproj" />
-  <Project Path="samples/Validify.AotSample/Validify.AotSample.csproj" />
-  <Project Path="samples/Validify.AotSample.Domain/Validify.AotSample.Domain.csproj" />
-  <Project Path="tests/Validify.SourceGenerator.Tests/Validify.SourceGenerator.Tests.csproj" />
-  <Project Path="tests/Validify.Tests/Validify.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Validify/Validify.csproj" />
+    <Project Path="src/Validify.SourceGenerator/Validify.SourceGenerator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Validify.SourceGenerator.Tests/Validify.SourceGenerator.Tests.csproj" />
+    <Project Path="tests/Validify.Tests/Validify.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Validify.AotSample/Validify.AotSample.csproj" />
+    <Project Path="samples/Validify.AotSample.Domain/Validify.AotSample.Domain.csproj" />
+  </Folder>
 </Solution>
