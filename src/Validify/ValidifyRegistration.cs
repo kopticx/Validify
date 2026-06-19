@@ -5,7 +5,7 @@ namespace Validify;
 
 public static class ValidifyRegistration
 {
-  public static IServiceCollection AddValidifyService(this IServiceCollection services)
+  public static IServiceCollection AddValidify(this IServiceCollection services)
   {
     services.AddScoped(typeof(ValidationFilter<>));
     
