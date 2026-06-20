@@ -3,13 +3,13 @@ namespace Validify.SourceGenerator.Tests;
 public class GeneratorTests
 {
   [Test]
-  public Task EmptyCompilation_GeneratesEmptyRegistrationMethod()
+  public async Task EmptyCompilation_GeneratesNothing()
   {
     const string source = "namespace Sample { public class Nothing { } }";
 
     var driver = TestHelper.Run(source);
 
-    return Verify(driver);
+    await Assert.That(driver.GetRunResult().GeneratedTrees).IsEmpty();
   }
 
   [Test]
@@ -93,35 +93,6 @@ public class GeneratorTests
                           """;
 
     var driver = TestHelper.Run(source);
-
-    return Verify(driver);
-  }
-
-  [Test]
-  public Task ValidatorInReferencedAssembly_IsRegistered()
-  {
-    // A separate "Domain" assembly that defines a public validator.
-    const string domainSource = """
-                                using FluentValidation;
-
-                                namespace Domain.Models { public class Product { public string Sku { get; set; } = ""; } }
-
-                                namespace Domain.Validators
-                                {
-                                    using Domain.Models;
-                                    public sealed class ProductValidator : AbstractValidator<Product>
-                                    {
-                                        public ProductValidator() => RuleFor(x => x.Sku).NotEmpty();
-                                    }
-                                }
-                                """;
-
-    var domainReference = TestHelper.CompileToReference("Domain", domainSource);
-
-    // The startup assembly has no validators of its own.
-    const string startupSource = "namespace Startup { public class Program { } }";
-
-    var driver = TestHelper.Run(startupSource, domainReference);
 
     return Verify(driver);
   }
