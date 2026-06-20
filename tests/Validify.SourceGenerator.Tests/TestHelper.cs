@@ -8,38 +8,19 @@ internal static class TestHelper
 {
   private static readonly ImmutableArray<PortableExecutableReference> BaseReferences = ResolveBaseReferences();
 
-  /// <summary>Runs the generator on <paramref name="source"/> plus any extra references and returns the driver for Verify.</summary>
-  public static GeneratorDriver Run(string source, params PortableExecutableReference[] extraReferences)
+  /// <summary>Runs the generator on <paramref name="source"/> and returns the driver for Verify.</summary>
+  public static GeneratorDriver Run(string source)
   {
     var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
     var compilation = CSharpCompilation.Create(
       assemblyName: "Validify.Tests.Sample",
       syntaxTrees: new[] { syntaxTree },
-      references: BaseReferences.AddRange(extraReferences),
+      references: BaseReferences,
       options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
     GeneratorDriver driver = CSharpGeneratorDriver.Create(new ValidatorRegistrationGenerator());
     return driver.RunGenerators(compilation);
-  }
-
-  /// <summary>Builds a metadata reference from in-memory C# source (for multi-assembly tests).</summary>
-  public static PortableExecutableReference CompileToReference(string assemblyName, string source)
-  {
-    var compilation = CSharpCompilation.Create(
-      assemblyName,
-      new[] { CSharpSyntaxTree.ParseText(source) },
-      BaseReferences,
-      new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-    using var stream = new MemoryStream();
-    var result = compilation.Emit(stream);
-    if (!result.Success)
-      throw new InvalidOperationException("Sample reference failed to compile: " +
-                                          string.Join("; ",
-                                            result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
-
-    return MetadataReference.CreateFromImage(stream.ToArray());
   }
 
   private static ImmutableArray<PortableExecutableReference> ResolveBaseReferences()

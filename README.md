@@ -12,7 +12,7 @@
 - ✅ Declarative model validation for Minimal APIs via `.WithValidation<T>()`
 - 🔄 Built on FluentValidation — full rule set: conditional, cross-property, async, custom messages
 - 🤖 **Source-generated auto-registration** — one `AddValidifyValidators()` call registers every validator; no manual `AddSingleton` per model
-- 🧩 **Per-project registration** — auto-registers the validators of the project it's installed in; register cross-assembly validators manually with `AddSingleton`
+- 📦 **Per-project registration** — auto-registers the validators of the project it's installed in; register cross-assembly validators manually with `AddSingleton`
 - ⚙️ **100% Native AOT compatible** — discovery happens at compile time, no runtime reflection
 - 🛡️ Stops invalid requests before they reach your handlers, with an RFC 9457 `HttpValidationProblemDetails`
 - 🧩 Plug-and-play with `Microsoft.Extensions.DependencyInjection`
