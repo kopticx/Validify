@@ -9,6 +9,5 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Validify.AotSample/Validify.AotSample.csproj" />
-    <Project Path="samples/Validify.AotSample.Domain/Validify.AotSample.Domain.csproj" />
   </Folder>
 </Solution>

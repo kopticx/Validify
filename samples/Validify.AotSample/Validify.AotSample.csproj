@@ -12,7 +12,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Validify\Validify.csproj" />
-        <ProjectReference Include="..\Validify.AotSample.Domain\Validify.AotSample.Domain.csproj" />
         <ProjectReference Include="..\..\src\Validify.SourceGenerator\Validify.SourceGenerator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
