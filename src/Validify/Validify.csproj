@@ -7,7 +7,7 @@
 
         <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
         <PackageId>Kopticx.Validify</PackageId>
-        <Version>2.0.0</Version>
+        <Version>2.1.0</Version>
         <Authors>Kopticx</Authors>
         <Description>Validify is a lightweight validation library for ASP.NET Core Minimal APIs that integrates FluentValidation through a reusable filter. 
             It enables clean and automatic model validation before reaching the endpoint logic. The library supports dependency injection, custom validators, 
