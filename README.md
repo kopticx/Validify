@@ -12,7 +12,7 @@
 - ✅ Declarative model validation for Minimal APIs via `.WithValidation<T>()`
 - 🔄 Built on FluentValidation — full rule set: conditional, cross-property, async, custom messages
 - 🤖 **Source-generated auto-registration** — one `AddValidifyValidators()` call registers every validator; no manual `AddSingleton` per model
-- 🏛️ **Multi-assembly discovery** — finds validators in referenced projects (Clean Architecture / N-layer), not just the startup project
+- 🧩 **Per-project registration** — auto-registers the validators of the project it's installed in; register cross-assembly validators manually with `AddSingleton`
 - ⚙️ **100% Native AOT compatible** — discovery happens at compile time, no runtime reflection
 - 🛡️ Stops invalid requests before they reach your handlers, with an RFC 9457 `HttpValidationProblemDetails`
 - 🧩 Plug-and-play with `Microsoft.Extensions.DependencyInjection`
@@ -72,25 +72,17 @@ It registers with `TryAdd`, so it **coexists with manual registration**: anythin
 services.AddSingleton<IValidator<PostUserModel>, PostUserModelValidator>();
 ```
 
+Discovery is **per-project**: the generator registers validators declared in the project where the package is installed. To register a validator that lives in another assembly, register it by hand (it coexists with the generated registrations):
+
+```csharp
+services.AddSingleton<IValidator<SomeModel>, SomeValidator>();
+```
+
 The default lifetime is `Scoped` (matching FluentValidation's own default); override it if needed:
 
 ```csharp
 builder.Services.AddValidifyValidators(ServiceLifetime.Singleton);
 ```
-
----
-
-## 🏛️ Clean Architecture / N-layer (multi-assembly)
-
-Validators rarely live in the web project. Validify's generator scans **referenced assemblies** too, so a single `AddValidifyValidators()` in your API project registers public validators defined in `Domain`, `Application`, or any referenced layer:
-
-```
-MyApi            →  AddValidify(); AddValidifyValidators();
- └─ Application   →  public CreateOrderValidator : AbstractValidator<CreateOrder>
-     └─ Domain    →  public CompanyValidator    : AbstractValidator<Company>
-```
-
-Every validator above is discovered and registered at compile time by that one call. (Validators must be `public` to be visible across assembly boundaries — the FluentValidation convention anyway.)
 
 ---
 
@@ -109,7 +101,7 @@ So the `400` response can be serialized under source-generated `System.Text.Json
 public partial class AppJsonContext : JsonSerializerContext;
 ```
 
-The repo's `samples/Validify.AotSample` is a Minimal API published with `PublishAot` that registers a validator from a **separate** assembly — proving the multi-assembly + AOT path end to end.
+The repo's `samples/Validify.AotSample` is a Minimal API published with `PublishAot` that registers its validators through the generator — proving the AOT path end to end.
 
 ---
 
@@ -124,7 +116,7 @@ The repo's `samples/Validify.AotSample` is a Minimal API published with `Publish
 | Expressiveness | Fluent API: conditional, cross-property, async, custom messages | Attribute set; custom via `IValidatableObject` / custom attributes |
 | Validator testability | Plain classes, unit-testable in isolation | Coupled to the model |
 | Registration | One source-generated `AddValidifyValidators()` (or manual) | `AddValidation()` + source-gen over annotated types |
-| Multi-project discovery | ✅ public validators across referenced assemblies | Per annotated type |
+| Discovery scope | The installing project's validators (cross-assembly is manual) | Per annotated type |
 | Native AOT | ✅ | ✅ |
 | Minimum target | .NET 8 | .NET 10 |
 
